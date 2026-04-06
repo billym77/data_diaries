@@ -5,21 +5,22 @@ from PIL import Image, ImageDraw, ImageFont
 import datetime
 import io
 import os
+import threading  # CRITICAL: For non-blocking emails
 
 app = Flask(__name__)
-app.secret_key = 'andale_archive_v8_final'
+app.secret_key = 'andale_archive_v9_async'
 
-# --- MAIL CONFIGURATION (Cloud Ready) ---
+# --- MAIL CONFIGURATION ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('marshallw358@gmail.com')
-app.config['MAIL_PASSWORD'] = os.environ.get('cpsnmkekyduhhrwi')
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 
 mail = Mail(app)
 
-# Persistent Storage (resets on server reboot)
+# Global Storage
 gallery_archive = []
 subscribers = []
 
@@ -32,6 +33,15 @@ LOGO_ASCII = """
 ##    ## ##    ##    ##    ##    ##          ##     ##  ##   ##    ## ##     ##  ##   ##      ##    ##
 ######   ##    ##    ##    ##    ##          ########  ####  ##    ## ##     ## ####  ########  ######
 """
+
+# --- ASYNC HELPER ---
+def send_async_email(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+            print("DEBUG: Background broadcast successful.")
+        except Exception as e:
+            print(f"DEBUG: Background broadcast failed: {e}")
 
 def image_to_ascii(image_file, width=100, density_level="medium"):
     try:
@@ -54,9 +64,8 @@ def image_to_ascii(image_file, width=100, density_level="medium"):
             index = int((pixel / 255) * (len(chars) - 1))
             ascii_str += chars[index]
         return ascii_str
-    except Exception as e:
-        print(f"ASCII ERROR: {e}")
-        return "[IMAGE_RECEPTION_ERROR]"
+    except:
+        return "[SIGNAL_LOST]"
 
 def create_receipt_image(text, ascii_art=""):
     width = 800
@@ -109,14 +118,12 @@ def create_receipt_image(text, ascii_art=""):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # 1. SUBSCRIPTION LOGIC
         email_sub = request.form.get('email_sub')
         if email_sub:
             if email_sub not in subscribers:
                 subscribers.append(email_sub)
             return redirect(url_for('index'))
 
-        # 2. DATA ENTRY LOGIC
         txt = request.form.get('user_text', '')
         desc = request.form.get('description', 'SIGNAL_LOG')
         img_file = request.files.get('image_file')
@@ -132,19 +139,18 @@ def index():
         }
         gallery_archive.insert(0, entry)
 
-        # 3. BROADCAST LOGIC (Non-Blocking Wrap)
+        # 3. ASYNC BROADCAST (This stops the "Freeze")
         session['last_artifact'] = {"txt": txt, "ascii": ascii_art, "name": desc}
 
         if subscribers:
-            try:
-                msg = Message(f"SIGNAL_RECEPTION: {desc.upper()}", recipients=subscribers)
-                msg.body = f"NEW ARTIFACT RECEIVED.\n\n{txt.upper()}"
-                msg.html = f"<div style='font-family:monospace;'><pre style='font-size:8px; line-height:7px;'>{ascii_art}</pre><hr><p>{txt}</p></div>"
-                mail.send(msg)
-            except Exception as e: 
-                print(f"MAIL ERROR BYPASSED: {e}")
+            msg = Message(f"SIGNAL_RECEPTION: {desc.upper()}", recipients=subscribers)
+            msg.body = f"NEW ARTIFACT RECEIVED.\n\n{txt.upper()}"
+            msg.html = f"<div style='font-family:monospace;'><pre style='font-size:8px; line-height:7px;'>{ascii_art}</pre><hr><p>{txt}</p></div>"
+            
+            # Fire the email thread and immediately move on
+            thread = threading.Thread(target=send_async_email, args=[app, msg])
+            thread.start()
 
-        # Instant Redirect to prevent "Freeze"
         return redirect(url_for('index'))
             
     return render_template('index.html', gallery=gallery_archive, logo_ascii=LOGO_ASCII)
@@ -159,7 +165,6 @@ def delete_entry(entry_id):
 def download_artifact():
     data = session.get('last_artifact')
     if data:
-        # We don't pop here so the user can re-download if needed
         return send_file(create_receipt_image(data['txt'], data['ascii']), 
                          mimetype='image/png', as_attachment=True, 
                          download_name=f"{data['name']}.png")
