@@ -7,14 +7,14 @@ import io
 import os
 
 app = Flask(__name__)
-app.secret_key = 'andale_archive_v7'
+app.secret_key = 'andale_archive_v8_final'
 
 # --- MAIL CONFIGURATION (Cloud Ready) ---
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_USERNAME'] = os.environ.get('marshallw358@gmail.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('cpsnmkekyduhhrwi')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 
 mail = Mail(app)
@@ -56,15 +56,18 @@ def image_to_ascii(image_file, width=100, density_level="medium"):
         return ascii_str
     except Exception as e:
         print(f"ASCII ERROR: {e}")
-        return ""
+        return "[IMAGE_RECEPTION_ERROR]"
 
 def create_receipt_image(text, ascii_art=""):
     width = 800
     try:
-        # Looking for font in current directory for Render
         font_path = "Andale Mono.ttf" 
-        font_main = ImageFont.truetype(font_path, 16)
-        font_ascii = ImageFont.truetype(font_path, 8)
+        if os.path.exists(font_path):
+            font_main = ImageFont.truetype(font_path, 16)
+            font_ascii = ImageFont.truetype(font_path, 8)
+        else:
+            font_main = ImageFont.load_default()
+            font_ascii = ImageFont.load_default()
     except:
         font_main = ImageFont.load_default()
         font_ascii = ImageFont.load_default()
@@ -129,22 +132,19 @@ def index():
         }
         gallery_archive.insert(0, entry)
 
-        # 3. BROADCAST LOGIC
+        # 3. BROADCAST LOGIC (Non-Blocking Wrap)
+        session['last_artifact'] = {"txt": txt, "ascii": ascii_art, "name": desc}
+
         if subscribers:
             try:
                 msg = Message(f"SIGNAL_RECEPTION: {desc.upper()}", recipients=subscribers)
-                msg.html = f"""
-                <div style="font-family: monospace; color: #000; background: #fff; padding: 30px;">
-                    <pre style="font-size: 8px; line-height: 7px; letter-spacing: 0px;">{ascii_art}</pre>
-                    <hr style="border: 0; border-top: 1px solid #eee;">
-                    <p>{txt.upper()}</p>
-                </div>
-                """
+                msg.body = f"NEW ARTIFACT RECEIVED.\n\n{txt.upper()}"
+                msg.html = f"<div style='font-family:monospace;'><pre style='font-size:8px; line-height:7px;'>{ascii_art}</pre><hr><p>{txt}</p></div>"
                 mail.send(msg)
             except Exception as e: 
-                print(f"MAIL ERROR: {e}")
+                print(f"MAIL ERROR BYPASSED: {e}")
 
-        session['last_artifact'] = {"txt": txt, "ascii": ascii_art, "name": desc}
+        # Instant Redirect to prevent "Freeze"
         return redirect(url_for('index'))
             
     return render_template('index.html', gallery=gallery_archive, logo_ascii=LOGO_ASCII)
@@ -159,7 +159,7 @@ def delete_entry(entry_id):
 def download_artifact():
     data = session.get('last_artifact')
     if data:
-        session.pop('last_artifact', None)
+        # We don't pop here so the user can re-download if needed
         return send_file(create_receipt_image(data['txt'], data['ascii']), 
                          mimetype='image/png', as_attachment=True, 
                          download_name=f"{data['name']}.png")

@@ -10,84 +10,26 @@
             padding: 100px 20px; text-transform: uppercase; margin: 0;
             font-weight: 200; 
         }
-        
-        #logo-target { 
-            white-space: pre; font-size: 13px; line-height: 11px; 
-            margin-bottom: 60px; text-align: center; letter-spacing: 1px;
-            font-weight: 300;
-        }
-
-        .manifesto {
-            max-width: 600px;
-            text-align: center;
-            font-size: 12px;
-            line-height: 1.6;
-            letter-spacing: 2px;
-            margin-bottom: 80px;
-            border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 60px;
-        }
-
-        .research-question {
-            max-width: 500px;
-            text-align: center;
-            font-size: 10px;
-            color: #888;
-            line-height: 1.8;
-            letter-spacing: 1px;
-            margin: 100px 0;
-            padding: 40px;
-            border: 0.5px solid #f0f0f0;
-        }
-        
+        #logo-target { white-space: pre; font-size: 13px; line-height: 11px; margin-bottom: 60px; text-align: center; letter-spacing: 1px; font-weight: 300; }
+        .manifesto { max-width: 600px; text-align: center; font-size: 12px; line-height: 1.6; letter-spacing: 2px; margin-bottom: 80px; border-bottom: 1px solid #f0f0f0; padding-bottom: 60px; }
+        .research-question { max-width: 500px; text-align: center; font-size: 10px; color: #888; line-height: 1.8; letter-spacing: 1px; margin: 100px 0; padding: 40px; border: 0.5px solid #f0f0f0; }
         .section { width: 650px; margin-bottom: 80px; text-align: center; }
-        
-        input, select, textarea { 
-            background: transparent; color: #000; 
-            border: none; border-bottom: 1px solid #f0f0f0; 
-            width: 100%; margin-bottom: 40px; padding: 15px 0; 
-            box-sizing: border-box; font-family: inherit; outline: none; 
-            font-size: 14px; text-align: center; font-weight: 200;
-        }
-        
-        button { 
-            background: #000; color: #fff; border: none; padding: 22px; 
-            width: 100%; font-weight: 200; cursor: pointer; 
-            text-transform: uppercase; font-size: 11px; letter-spacing: 5px;
-            transition: opacity 0.3s;
-        }
+        input, select, textarea { background: transparent; color: #000; border: none; border-bottom: 1px solid #f0f0f0; width: 100%; margin-bottom: 40px; padding: 15px 0; box-sizing: border-box; font-family: inherit; outline: none; font-size: 14px; text-align: center; font-weight: 200; }
+        button { background: #000; color: #fff; border: none; padding: 22px; width: 100%; font-weight: 200; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 5px; transition: opacity 0.3s; }
         button:hover { opacity: 0.7; }
-
-        .gallery-item { 
-            width: 750px; padding: 100px 0; 
-            border-top: 1px solid #f9f9f9; 
-            display: flex; flex-direction: column; align-items: center; 
-        }
-        
-        .ascii-view { 
-            font-size: 8px; line-height: 7px; background: #fff; 
-            padding: 40px 0; display: inline-block; color: #000; 
-        }
-        
+        .gallery-item { width: 750px; padding: 100px 0; border-top: 1px solid #f9f9f9; display: flex; flex-direction: column; align-items: center; }
+        .ascii-view { font-size: 8px; line-height: 7px; background: #fff; padding: 40px 0; display: inline-block; color: #000; }
         .reveal { animation: fax-reveal 2.5s steps(120) forwards; overflow: hidden; max-height: 0; }
         @keyframes fax-reveal { to { max-height: 5000px; } }
-        
-        h3 { 
-            letter-spacing: 15px; margin-top: 120px; font-size: 14px; 
-            border-bottom: 1px solid #000; padding-bottom: 15px; 
-            font-weight: 200; margin-bottom: 50px;
-        }
-        
+        h3 { letter-spacing: 15px; margin-top: 120px; font-size: 14px; border-bottom: 1px solid #000; padding-bottom: 15px; font-weight: 200; margin-bottom: 50px; }
         p { font-weight: 200; font-size: 15px; line-height: 1.8; letter-spacing: 1px; max-width: 550px; text-align: center; }
-        
         small { color: #cccccc; font-size: 9px; margin-bottom: 15px; letter-spacing: 2px; }
-        
         .redact { color: #eeeeee; text-decoration: none; font-size: 9px; margin-top: 20px; transition: color 0.3s; }
         .redact:hover { color: #ff0000; }
+        .download-btn { color: #000; font-size: 10px; margin-top: 20px; text-decoration: underline; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-
     <div id="logo-target">{{ logo_ascii }}</div>
 
     <div class="manifesto">
@@ -122,6 +64,10 @@
     </div>
 
     <h3>GLOBAL_ARCHIVE</h3>
+    {% if session.get('last_artifact') %}
+        <a href="/download_artifact" class="download-btn">[GENERATE_PHYSICAL_RECEIPT_FOR_LAST_ENTRY]</a>
+    {% endif %}
+
     {% for entry in gallery %}
     <div class="gallery-item">
         <small>{{ entry.date }} // {{ entry.time }} // ID: {{ entry.desc }}</small>
@@ -137,7 +83,6 @@
         const target = document.getElementById('logo-target');
         const originalLogo = `{{ logo_ascii | safe }}`;
         const glitchChars = "0189$#%@&?/><";
-
         function glitchLogo() {
             let result = "";
             for (let i = 0; i < originalLogo.length; i++) {
