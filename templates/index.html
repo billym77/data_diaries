@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DATA DIARY // PROTOCOL</title>
+    <style>
+        body { 
+            background: #ffffff; color: #000; 
+            font-family: 'Andale Mono', 'AndaleMono', monospace; 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 120px 20px; text-transform: uppercase; margin: 0;
+            font-weight: 200; 
+        }
+        
+        #logo-target { 
+            white-space: pre; font-size: 13px; line-height: 11px; 
+            margin-bottom: 140px; text-align: center; letter-spacing: 1px;
+            font-weight: 300;
+        }
+        
+        .section { width: 650px; margin-bottom: 80px; text-align: center; }
+        
+        /* SURGICAL THIN LINES */
+        input, select, textarea { 
+            background: transparent; color: #000; 
+            border: none; border-bottom: 1px solid #f0f0f0; 
+            width: 100%; margin-bottom: 40px; padding: 15px 0; 
+            box-sizing: border-box; font-family: inherit; outline: none; 
+            font-size: 14px; text-align: center; font-weight: 200;
+        }
+        
+        button { 
+            background: #000; color: #fff; border: none; padding: 22px; 
+            width: 100%; font-weight: 200; cursor: pointer; 
+            text-transform: uppercase; font-size: 12px; letter-spacing: 6px;
+            transition: opacity 0.3s;
+        }
+        button:hover { opacity: 0.7; }
+
+        .gallery-item { 
+            width: 750px; padding: 100px 0; 
+            border-top: 1px solid #f9f9f9; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        
+        .ascii-view { 
+            font-size: 8px; line-height: 7px; background: #fff; 
+            padding: 40px 0; display: inline-block; color: #000; 
+        }
+        
+        .reveal { animation: fax-reveal 2.5s steps(120) forwards; overflow: hidden; max-height: 0; }
+        @keyframes fax-reveal { to { max-height: 5000px; } }
+        
+        h3 { 
+            letter-spacing: 15px; margin-top: 200px; font-size: 14px; 
+            border-bottom: 1px solid #000; padding-bottom: 15px; 
+            font-weight: 200; margin-bottom: 50px;
+        }
+        
+        p { font-weight: 200; font-size: 15px; line-height: 1.8; letter-spacing: 1px; max-width: 550px; text-align: center; }
+        
+        small { color: #cccccc; font-size: 9px; margin-bottom: 15px; letter-spacing: 2px; }
+        
+        .redact { color: #eeeeee; text-decoration: none; font-size: 9px; margin-top: 20px; transition: color 0.3s; }
+        .redact:hover { color: #ff0000; }
+    </style>
+</head>
+<body>
+
+    <div id="logo-target">{{ logo_ascii }}</div>
+
+    <div class="section">
+        <small>// BROADCAST_SUBSCRIPTION</small>
+        <form method="POST">
+            <input type="email" name="email_sub" placeholder="ENTER_EMAIL_FOR_REMOTE_LOG" required>
+            <button type="submit">CONNECT_SIGNAL</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <small>// ARTIFACT_SUBMISSION</small>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="text" name="description" placeholder="ARTIFACT_ID">
+            <textarea name="user_text" placeholder="MEMORY_CONTENT..."></textarea>
+            <input type="file" name="image_file">
+            <select name="density">
+                <option value="light">INK_WEIGHT: LIGHT</option>
+                <option value="medium" selected>INK_WEIGHT: MEDIUM</option>
+                <option value="heavy">INK_WEIGHT: HEAVY</option>
+            </select>
+            <button type="submit">COMMIT_TO_MEMORY</button>
+        </form>
+    </div>
+
+    <h3>GLOBAL_ARCHIVE</h3>
+    {% for entry in gallery %}
+    <div class="gallery-item">
+        <small>{{ entry.date }} // {{ entry.time }} // ID: {{ entry.desc }}</small>
+        <p>{{ entry.content }}</p>
+        {% if entry.ascii %}
+        <div class="ascii-view reveal"><pre>{{ entry.ascii }}</pre></div>
+        {% endif %}
+        <a href="/delete/{{ loop.index0 }}" class="redact">[REDACT_LOCAL_CACHE]</a>
+    </div>
+    {% endfor %}
+
+    <script>
+        const target = document.getElementById('logo-target');
+        const originalLogo = `{{ logo_ascii | safe }}`;
+        const glitchChars = "0189$#%@&?/><";
+
+        function glitchLogo() {
+            let result = "";
+            for (let i = 0; i < originalLogo.length; i++) {
+                if (originalLogo[i] !== " " && originalLogo[i] !== "\n" && Math.random() < 0.1) {
+                    result += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                } else {
+                    result += originalLogo[i];
+                }
+            }
+            target.innerText = result;
+        }
+        setInterval(glitchLogo, 50);
+
+        {% if session.get('last_artifact') %}
+            window.location.href = "{{ url_for('download_artifact') }}";
+        {% endif %}
+    </script>
+</body>
+</html>
