@@ -33,27 +33,27 @@ LOGO_ASCII = """
 """
 
 def image_to_ascii(image_file, width=100, density_level="medium"):
-    try:
-        img = Image.open(image_file).convert('L')
-        aspect_ratio = img.height / img.width
-        new_height = int(aspect_ratio * width * 0.55)
-        img = img.resize((width, new_height))
+try:
+img = Image.open(image_file).convert('L')
+aspect_ratio = img.height / img.width
+new_height = int(aspect_ratio * width * 0.55)
+img = img.resize((width, new_height))
         
-        if density_level == "light":
-            chars = " .:-' " 
-        elif density_level == "heavy":
-            chars = "█▓▒░@#W$8&%*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " 
-        else:
-            chars = "WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " 
+if density_level == "light":
+chars = " .:-' " 
+elif density_level == "heavy":
+chars = "█▓▒░@#W$8&%*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " 
+else:
+chars = "WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. " 
             
-        pixels = img.getdata()
-        ascii_str = ""
-        for i, pixel in enumerate(pixels):
-            if i % width == 0 and i != 0: ascii_str += "\n"
-            index = int((pixel / 255) * (len(chars) - 1))
-            ascii_str += chars[index]
-        return ascii_str
-    except: return ""
+pixels = img.getdata()
+ascii_str = ""
+for i, pixel in enumerate(pixels):
+if i % width == 0 and i != 0: ascii_str += "\n"
+index = int((pixel / 255) * (len(chars) - 1))
+ascii_str += chars[index]
+return ascii_str
+except: return ""
 
 def create_receipt_image(text, ascii_art=""):
     width = 800
