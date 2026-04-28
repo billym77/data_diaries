@@ -9,7 +9,7 @@
 
         body { 
             background: var(--bg); color: var(--fg); font-family: 'Andale Mono', monospace; 
-            display: grid; grid-template-columns: 450px 1fr; /* HARD BOUNDARY */
+            display: grid; grid-template-columns: 450px 1fr; /* TWO COLUMN GRID */
             margin: 0; padding: 0; text-transform: uppercase; transition: background 0.4s; height: 100vh; overflow: hidden;
         }
 
@@ -24,6 +24,7 @@
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 6px; background: var(--fg); margin-top: -8px; border-radius: 0; }
 
         .research-question { font-size: 10px; color: #888; line-height: 1.8; margin-top: 60px; padding: 30px; border: 0.5px solid var(--accent); }
+        
         .control-row { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
         .switch input { opacity: 0; }
@@ -35,32 +36,58 @@
         .reveal { animation: fax-reveal 6s steps(80) forwards; overflow: hidden; max-height: 0; border-left: 1px solid var(--fg); padding-left: 30px; margin-top: 30px; }
         @keyframes fax-reveal { from { max-height: 0; } to { max-height: 6000px; } }
 
+        #logo-target { white-space: pre; font-size: 11px; line-height: 10px; margin-bottom: 50px; }
         input, textarea { background: transparent; color: var(--fg); border: none; border-bottom: 1px solid var(--accent); width: 100%; margin-bottom: 30px; padding: 15px 0; font-family: inherit; outline: none; }
         button { background: var(--fg); color: var(--bg); border: none; padding: 20px; width: 100%; cursor: pointer; letter-spacing: 5px; }
         .protocol-link { font-size: 10px; text-decoration: underline; cursor: pointer; display: block; margin-top: 20px; }
     </style>
 </head>
 <body id="main-body">
+
 <div id="left-protocol">
     <div class="control-row">
         <label class="switch"><input type="checkbox" id="invert-toggle" onclick="toggleInvert()"><span class="slider"></span></label>
         <small>INVERSION_PROTOCOL</small>
     </div>
+    
     <div id="logo-target">{{ logo_ascii }}</div>
+
     <form method="POST" action="/submit" enctype="multipart/form-data">
         <input type="text" name="description" placeholder="ARTIFACT_ID">
         <textarea name="user_text" placeholder="MEMORY_CONTENT..."></textarea>
+        
         <small>// ATTACH_VISUAL_DATA</small>
         <input type="file" name="image_file" style="margin-bottom:30px;">
+
         <div class="slider-section">
             <small>INK_DENSITY: <span id="ink-val">50</span>%</small>
             <div class="visual-level"><div id="ink-fill" class="level-fill" style="width: 50%;"></div></div>
             <input type="range" name="density_slider" min="0" max="100" value="50" oninput="updateInk(this.value)">
         </div>
+
         <button type="submit">COMMIT_TO_MEMORY</button>
     </form>
-    <div class="research-question">HOW CAN THE TECHNICAL CONSTRAINTS OF THE TURN OF THE MILLENNIUM BE REPURPOSED TO CREATE A NEW MATERIAL LANGUAGE FOR PERSONAL CULTURAL ARCHIVING?</div>
+    
+    <div class="research-question">
+        HOW CAN THE TECHNICAL CONSTRAINTS OF THE TURN OF THE MILLENNIUM BE REPURPOSED TO CREATE A NEW MATERIAL LANGUAGE FOR PERSONAL CULTURAL ARCHIVING?
+    </div>
+
+    <div style="margin-top: 60px; border-top: 2px solid var(--fg); padding-top: 40px;">
+        <small>// ARCHIVE_CONFIGURATION</small>
+        <div class="control-row" style="margin-top:20px;">
+            <label class="switch"><input type="checkbox" id="redact-toggle" checked><span class="slider"></span></label>
+            <small>REDACTION_ACTIVE</small>
+        </div>
+        <div class="slider-section">
+            <small>REDACTION_THRESHOLD: <span id="redact-val">50</span>%</small>
+            <div class="visual-level"><div id="redact-fill" class="level-fill" style="width: 50%;"></div></div>
+            <input type="range" id="zine-level" min="0" max="100" value="50" oninput="updateRedact(this.value)">
+        </div>
+        <a onclick="downloadReceipt()" class="protocol-link">[GENERATE_INDIVIDUAL_RECEIPT]</a>
+        <a onclick="generateZine()" class="protocol-link">[COMPILE_FULL_ARCHIVE_ZINE]</a>
+    </div>
 </div>
+
 <div id="right-print">
     <small style="display: block; margin-bottom: 40px; color: #888;">// ARCHIVAL_FEED_STREAM</small>
     {% for entry in gallery %}
@@ -71,12 +98,33 @@
     </div>
     {% endfor %}
 </div>
+
 <script>
     const body = document.getElementById('main-body');
     const toggle = document.getElementById('invert-toggle');
     if (localStorage.getItem('inverted') === 'true') { body.classList.add('inverted'); toggle.checked = true; }
-    function toggleInvert() { const inv = body.classList.toggle('inverted'); localStorage.setItem('inverted', inv); }
-    function updateInk(v) { document.getElementById('ink-val').innerText = v; document.getElementById('ink-fill').style.width = v + "%"; }
+
+    function toggleInvert() {
+        const inv = body.classList.toggle('inverted');
+        localStorage.setItem('inverted', inv);
+    }
+
+    function updateInk(v) {
+        document.getElementById('ink-val').innerText = v;
+        document.getElementById('ink-fill').style.width = v + "%";
+    }
+
+    function updateRedact(v) {
+        document.getElementById('redact-val').innerText = v;
+        document.getElementById('redact-fill').style.width = v + "%";
+    }
+
+    function downloadReceipt() { window.location.href = `/download_receipt?invert=${toggle.checked}`; }
+    function generateZine() {
+        const lvl = document.getElementById('zine-level').value;
+        const mode = document.getElementById('redact-toggle').checked ? 'redacted' : 'full';
+        window.location.href = `/generate_zine?invert=${toggle.checked}&level=${lvl}&mode=${mode}`;
+    }
 </script>
 </body>
 </html>

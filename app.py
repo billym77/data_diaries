@@ -15,7 +15,7 @@ from reportlab.lib import colors as rl_colors
 from reportlab.lib.units import mm
 
 app = Flask(__name__)
-app.secret_key = 'andale_archive_v12_MASTER_FINAL'
+app.secret_key = 'andale_archive_v12_MASTER_STABLE'
 
 gallery_archive = []
 
@@ -36,7 +36,7 @@ def image_to_ascii(image_file, width=80, density_value=50):
         new_height = int(aspect_ratio * width * 0.5) 
         img = img.resize((width, new_height))
         
-        # MASTER SLIDER LOGIC
+        # Slider-based density logic
         if density_value < 33:
             chars = " .:-' "
         elif density_value < 66:
@@ -50,8 +50,7 @@ def image_to_ascii(image_file, width=80, density_value=50):
     except: return ""
 
 def create_receipt_image(entry, inverted=False):
-    # MASTER FIX: 1000px width prevents the 'squashed' look
-    WIDTH = 1000 
+    WIDTH = 1000 # Corrected width for distortion
     ASCII_CHAR_H = 10
     bg = (0, 0, 0) if inverted else (255, 255, 255)
     fg = (255, 255, 255) if inverted else (0, 0, 0)
@@ -83,7 +82,6 @@ def index():
 def submit():
     txt = request.form.get('user_text', '')
     desc = request.form.get('description', 'SIGNAL_LOG')
-    # FIX: Correctly parsing numeric slider value from frontend
     density = int(request.form.get('density_slider', 50))
     img_file = request.files.get('image_file')
     
@@ -129,11 +127,6 @@ def generate_zine():
         cv.showPage()
     cv.save(); buf.seek(0)
     return send_file(buf, mimetype='application/pdf', as_attachment=True, download_name="DATA_ZINE.pdf")
-
-@app.route('/delete/<int:idx>')
-def delete(idx):
-    if 0 <= idx < len(gallery_archive): gallery_archive.pop(idx)
-    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
