@@ -15,7 +15,7 @@ from reportlab.lib import colors as rl_colors
 from reportlab.lib.units import mm
 
 app = Flask(__name__)
-app.secret_key = 'andale_archive_v12_stable_master'
+app.secret_key = 'andale_archive_v12_MASTER_FINAL'
 
 gallery_archive = []
 
@@ -29,17 +29,20 @@ LOGO_ASCII = r"""
 ######   ##    ##    ##    ##    ##          ########  ####  ##    ## ##     ## ####  ########  ######
 """
 
-def image_to_ascii(image_file, width=80, density_level="medium"):
+def image_to_ascii(image_file, width=80, density_value=50):
     try:
         img = Image.open(image_file).convert('L')
         aspect_ratio = img.height / img.width
-        # Adjusted for better scaling on receipts
         new_height = int(aspect_ratio * width * 0.5) 
         img = img.resize((width, new_height))
         
-        chars = r"WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
-        if density_level == "light": chars = " .:-' "
-        elif density_level == "heavy": chars = r"█▓▒░@#W$8&%*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+        # MASTER SLIDER LOGIC: Thresholds for Ink Density
+        if density_value < 33:
+            chars = " .:-' "
+        elif density_value < 66:
+            chars = r"WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+        else:
+            chars = r"█▓▒░@#W$8&%*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
             
         pixels = img.getdata()
         ascii_str = "".join(chars[int((p / 255) * (len(chars) - 1))] for p in pixels)
@@ -47,7 +50,7 @@ def image_to_ascii(image_file, width=80, density_level="medium"):
     except: return ""
 
 def create_receipt_image(entry, inverted=False):
-    # FIXED: Wider canvas and better line height to prevent distortion
+    # MASTER FIX: 1000px width prevents character distortion
     WIDTH = 1000 
     ASCII_CHAR_H = 10
     bg = (0, 0, 0) if inverted else (255, 255, 255)
@@ -59,14 +62,12 @@ def create_receipt_image(entry, inverted=False):
     d = ImageDraw.Draw(img)
     y = 80
     
-    # Logo and Content
     for line in LOGO_ASCII.strip().split('\n'):
         d.text((60, y), line, fill=fg); y += ASCII_CHAR_H
     y += 60
     
     if entry['ascii']:
         for line in ascii_lines:
-            # Added slight x-offset to center art better
             d.text((60, y), line, fill=fg); y += ASCII_CHAR_H
     
     buf = io.BytesIO()
@@ -82,9 +83,11 @@ def index():
 def submit():
     txt = request.form.get('user_text', '')
     desc = request.form.get('description', 'SIGNAL_LOG')
-    density = request.form.get('density', 'medium')
+    # MASTER SLIDER RECEIPT
+    density = int(request.form.get('density_slider', 50))
     img_file = request.files.get('image_file')
-    ascii_art = image_to_ascii(img_file, density_level=density) if img_file else ""
+    
+    ascii_art = image_to_ascii(img_file, density_value=density) if img_file else ""
     
     entry = {"content": txt, "desc": desc.upper(), "time": datetime.datetime.now().strftime("%H:%M:%S"), "date": datetime.datetime.now().strftime("%Y-%m-%d"), "ascii": ascii_art}
     gallery_archive.insert(0, entry)
@@ -114,7 +117,7 @@ def generate_zine():
         cv.setFillColor(bg_c)
         cv.rect(0, 0, 148*mm, 210*mm, fill=1)
         cv.setFillColor(fg_c)
-        # FIXED: Removed bold Courier to match receipt aesthetic
+        # MASTER TYPOGRAPHY: No bold, clean Courier
         cv.setFont('Courier', 10) 
         cv.drawString(15*mm, 190*mm, f"ID: {entry['desc']}")
         y = 175*mm
