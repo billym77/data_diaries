@@ -12,69 +12,60 @@
             font-family: 'Andale Mono', 'Courier New', monospace; 
             display: flex; margin: 0; padding: 0;
             text-transform: uppercase; font-weight: 200;
-            transition: background 0.4s, color 0.4s; height: 100vh;
+            transition: background 0.4s, color 0.4s; height: 100vh; overflow: hidden;
         }
 
-        /* SPLIT-PROTOCOL LAYOUT */
+        /* LAYOUT STABILITY */
         #left-protocol { 
-            width: 40%; padding: 60px; border-right: 0.5px solid var(--accent); 
+            width: 40%; min-width: 450px; padding: 60px; 
+            border-right: 0.5px solid var(--accent); 
             height: 100vh; overflow-y: auto; box-sizing: border-box; 
         }
         #right-print { 
-            width: 60%; padding: 60px; height: 100vh; 
-            overflow-y: auto; position: relative; box-sizing: border-box; 
+            flex-grow: 1; padding: 60px; height: 100vh; 
+            overflow-y: auto; box-sizing: border-box; 
         }
 
         #logo-target { white-space: pre; font-size: 11px; line-height: 10px; margin-bottom: 50px; }
-        
-        .manifesto { 
-            font-size: 11px; line-height: 1.8; letter-spacing: 2px; 
-            margin-bottom: 60px; border-bottom: 1px solid var(--accent); padding-bottom: 40px; 
-        }
+        .manifesto { font-size: 11px; line-height: 1.8; letter-spacing: 2px; margin-bottom: 60px; border-bottom: 1px solid var(--accent); padding-bottom: 40px; }
+
+        /* TOGGLE SWITCH */
+        .switch-container { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--accent); transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: var(--fg); transition: .4s; }
+        input:checked + .slider { background-color: var(--fg); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: var(--bg); }
 
         /* BRUTALIST SLIDER */
-        .slider-wrap { margin: 30px 0; }
-        .visual-level { display: flex; height: 10px; border: 1px solid var(--fg); margin-top: 10px; }
-        #level-fill { height: 100%; background: var(--fg); transition: width 0.1s; }
-        input[type=range] { 
-            -webkit-appearance: none; width: 100%; background: transparent; cursor: crosshair; margin-top: 15px;
-        }
+        .visual-level { display: flex; height: 8px; border: 1px solid var(--fg); margin-top: 10px; }
+        #level-fill { height: 100%; background: var(--fg); }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: crosshair; margin-top: 15px; }
         input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--fg); }
-        input[type=range]::-webkit-slider-thumb { 
-            -webkit-appearance: none; height: 20px; width: 10px; background: var(--fg); margin-top: -10px; border-radius: 0;
-        }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 8px; background: var(--fg); margin-top: -9px; border-radius: 0; }
 
         /* PRINT REVEAL */
-        .reveal { 
-            animation: fax-reveal 3.5s steps(100) forwards; 
-            overflow: hidden; max-height: 0; 
-            border-left: 1px solid var(--fg); padding-left: 25px; margin-top: 20px;
-        }
+        .reveal { animation: fax-reveal 3.5s steps(100) forwards; overflow: hidden; max-height: 0; border-left: 1px solid var(--fg); padding-left: 25px; margin-top: 20px; }
         @keyframes fax-reveal { from { max-height: 0; } to { max-height: 5000px; } }
 
-        .ascii-view { font-size: 7px; line-height: 6px; white-space: pre; }
+        input, select, textarea { background: transparent; color: var(--fg); border: none; border-bottom: 1px solid var(--accent); width: 100%; margin-bottom: 30px; padding: 15px 0; font-family: inherit; outline: none; }
+        button { background: var(--fg); color: var(--bg); border: none; padding: 20px; width: 100%; cursor: pointer; letter-spacing: 5px; }
+        .protocol-link { font-size: 10px; text-decoration: underline; cursor: pointer; display: block; margin-top: 20px; letter-spacing: 1px; }
         
-        input, select, textarea { 
-            background: transparent; color: var(--fg); border: none; 
-            border-bottom: 1px solid var(--accent); width: 100%; 
-            margin-bottom: 30px; padding: 15px 0; font-family: inherit; outline: none; 
-        }
-        
-        button { 
-            background: var(--fg); color: var(--bg); border: none; 
-            padding: 20px; width: 100%; cursor: pointer; letter-spacing: 5px; 
-        }
-
-        .protocol-link { 
-            font-size: 10px; text-decoration: underline; cursor: pointer; 
-            display: block; margin-top: 20px; letter-spacing: 1px;
-        }
+        .zine-controls { margin-top: 50px; border-top: 1px solid var(--accent); padding-top: 30px; }
     </style>
 </head>
 <body id="main-body">
 
 <div id="left-protocol">
-    <span class="protocol-link" onclick="toggleInvert()" style="margin-bottom: 40px;">[INITIATE_INVERSION_PROTOCOL]</span>
+    <div class="switch-container">
+        <label class="switch">
+            <input type="checkbox" id="invert-toggle" onclick="toggleInvert()">
+            <span class="slider"></span>
+        </label>
+        <small>INVERSION_PROTOCOL</small>
+    </div>
     
     <div id="logo-target">{{ logo_ascii }}</div>
 
@@ -86,11 +77,8 @@
         <input type="text" name="description" placeholder="ARTIFACT_ID">
         <textarea name="user_text" placeholder="MEMORY_CONTENT..."></textarea>
         
-        <div class="slider-wrap">
-            <small>REDACTION_THRESHOLD: <span id="val">50</span>%</small>
-            <div class="visual-level"><div id="level-fill" style="width: 50%;"></div></div>
-            <input type="range" id="zine-level" min="0" max="100" value="50" oninput="updateLevel(this.value)">
-        </div>
+        <small style="display:block; margin-bottom:10px;">// VISUAL_DATA_ATTACHMENT</small>
+        <input type="file" name="image_file" accept="image/*">
 
         <select name="density">
             <option value="light">INK: LIGHT</option>
@@ -101,8 +89,15 @@
         <button type="submit">COMMIT_TO_MEMORY</button>
     </form>
     
-    <div style="margin-top: 50px; border-top: 1px solid var(--accent); padding-top: 30px;">
-        <small>// OUTPUT_CONTROLS</small>
+    <div class="zine-controls">
+        <small>// ARCHIVE_OUTPUT_CONFIGURATION</small>
+        
+        <div style="margin: 25px 0;">
+            <small>REDACTION_THRESHOLD: <span id="val">50</span>%</small>
+            <div class="visual-level"><div id="level-fill" style="width: 50%;"></div></div>
+            <input type="range" id="zine-level" min="0" max="100" value="50" oninput="updateLevel(this.value)">
+        </div>
+
         {% if session.get('last_artifact_ready') %}
             <a onclick="downloadReceipt()" class="protocol-link">[GENERATE_INDIVIDUAL_RECEIPT]</a>
         {% endif %}
@@ -111,14 +106,14 @@
 </div>
 
 <div id="right-print">
-    <small style="position: absolute; top: 20px; right: 60px;">// LIVE_OUTPUT_FEED</small>
+    <small style="display: block; margin-bottom: 40px; color: #888;">// LIVE_OUTPUT_FEED</small>
     <div id="print-zone">
         {% for entry in gallery %}
-        <div class="gallery-item" style="margin-bottom: 120px;">
+        <div class="gallery-item" style="margin-bottom: 120px; max-width: 90%;">
             <small>{{ entry.date }} // {{ entry.time }} // ID: {{ entry.desc }}</small>
             <p style="font-size: 14px; line-height: 1.6; margin: 30px 0;">{{ entry.content }}</p>
             {% if entry.ascii %}
-            <div class="ascii-view reveal">{{ entry.ascii }}</div>
+            <div class="ascii-view reveal"><pre style="margin:0;">{{ entry.ascii }}</pre></div>
             {% endif %}
             <a href="/delete/{{ loop.index0 }}" class="protocol-link" style="color: var(--accent);">[REDACT_FROM_FEED]</a>
         </div>
@@ -127,48 +122,46 @@
 </div>
 
 <script>
-    // 1. ORIGINAL GLITCH LOGIC
+    // 1. PERSISTENT INVERSION LOGIC
+    const body = document.getElementById('main-body');
+    const toggle = document.getElementById('invert-toggle');
+
+    if (localStorage.getItem('inverted') === 'true') {
+        body.classList.add('inverted');
+        toggle.checked = true;
+    }
+
+    function toggleInvert() {
+        const isInverted = body.classList.toggle('inverted');
+        localStorage.setItem('inverted', isInverted);
+    }
+
+    // 2. ORIGINAL GLITCH
     const target = document.getElementById('logo-target');
     const originalLogo = `{{ logo_ascii | safe }}`;
-    const glitchChars = "0189$#%@&?/><";
     function glitchLogo() {
-        let result = "";
-        for (let i = 0; i < originalLogo.length; i++) {
-            if (originalLogo[i] !== " " && originalLogo[i] !== "\n" && Math.random() < 0.05) {
-                result += glitchChars[Math.floor(Math.random() * glitchChars.length)];
-            } else {
-                result += originalLogo[i];
-            }
+        let res = "";
+        for(let i=0; i<originalLogo.length; i++) {
+            res += (Math.random() < 0.05 && originalLogo[i] !== '\n') ? "01X#$"[Math.floor(Math.random()*5)] : originalLogo[i];
         }
-        target.innerText = result;
+        target.innerText = res;
     }
     setInterval(glitchLogo, 60);
 
-    // 2. UI HELPERS
+    // 3. UI SYNC
     function updateLevel(v) {
         document.getElementById('val').innerText = v;
         document.getElementById('level-fill').style.width = v + "%";
     }
 
-    function toggleInvert() {
-        document.getElementById('main-body').classList.toggle('inverted');
-    }
-
     function downloadReceipt() {
-        const inv = document.getElementById('main-body').classList.contains('inverted');
-        window.location.href = `/download_receipt?invert=${inv}`;
+        window.location.href = `/download_receipt?invert=${toggle.checked}`;
     }
 
     function generateZine() {
-        const inv = document.getElementById('main-body').classList.contains('inverted');
         const lvl = document.getElementById('zine-level').value;
-        window.location.href = `/generate_zine?invert=${inv}&level=${lvl}&mode=redacted`;
+        window.location.href = `/generate_zine?invert=${toggle.checked}&level=${lvl}&mode=redacted`;
     }
-
-    // 3. AUTO-ACTIVATE REVEAL ON LOAD
-    document.querySelectorAll('.reveal').forEach(el => {
-        el.style.display = 'block';
-    });
 </script>
 </body>
 </html>

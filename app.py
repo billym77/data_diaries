@@ -2,12 +2,10 @@ import textwrap
 import json
 import base64
 from flask import Flask, render_template, request, send_file, redirect, url_for, session
-from flask_mail import Mail, Message
 from PIL import Image, ImageDraw, ImageFont
 import datetime
 import io
 import os
-import threading
 import random
 
 # PDF Generation imports
@@ -17,7 +15,7 @@ from reportlab.lib import colors as rl_colors
 from reportlab.lib.units import mm
 
 app = Flask(__name__)
-app.secret_key = 'andale_archive_v10_zine_master'
+app.secret_key = 'andale_archive_v11_split_master'
 
 # Global Storage
 gallery_archive = []
@@ -48,22 +46,22 @@ def image_to_ascii(image_file, width=100, density_level="medium"):
         ascii_str = "".join(chars[int((p / 255) * (len(chars) - 1))] for p in pixels)
         return "\n".join(ascii_str[i:i+width] for i in range(0, len(ascii_str), width))
     except:
-        return "[SIGNAL_LOST]"
+        return ""
 
 def create_receipt_image(entry, inverted=False):
     WIDTH = 800
-    CHAR_H, ASCII_CHAR_H = 18, 8
+    ASCII_CHAR_H = 8
     bg = (0, 0, 0) if inverted else (255, 255, 255)
     fg = (255, 255, 255) if inverted else (0, 0, 0)
     
     ascii_lines = entry['ascii'].split('\n') if entry['ascii'] else []
-    total_h = 500 + (len(ascii_lines) * ASCII_CHAR_H)
+    total_h = 600 + (len(ascii_lines) * ASCII_CHAR_H)
     img = Image.new('RGB', (WIDTH, total_h), color=bg)
     d = ImageDraw.Draw(img)
     y = 60
     for line in LOGO_ASCII.strip().split('\n'):
         d.text((40, y), line, fill=fg); y += ASCII_CHAR_H
-    y += 40
+    y += 60
     if entry['ascii']:
         for line in ascii_lines:
             d.text((40, y), line, fill=fg); y += ASCII_CHAR_H
@@ -83,6 +81,7 @@ def submit():
     desc = request.form.get('description', 'SIGNAL_LOG')
     density = request.form.get('density', 'medium')
     img_file = request.files.get('image_file')
+    
     ascii_art = image_to_ascii(img_file, density_level=density) if img_file else ""
     
     entry = {
