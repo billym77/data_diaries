@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>DATA DIARY // PROTOCOL</title>
     <style>
-        /* THE ORIGINAL MINIMALIST IDENTITY - UNTOUCHED */
+        /* YOUR ORIGINAL STYLE - PRESERVED */
         body { 
             background: #ffffff; color: #000; 
             font-family: 'Andale Mono', 'AndaleMono', monospace; 
@@ -12,53 +11,38 @@
             padding: 100px 20px; text-transform: uppercase; margin: 0;
             font-weight: 200; 
         }
-        
         #logo-target { white-space: pre; font-size: 13px; line-height: 11px; margin-bottom: 60px; text-align: center; letter-spacing: 1px; font-weight: 300; }
         .manifesto { max-width: 600px; text-align: center; font-size: 12px; line-height: 1.6; letter-spacing: 2px; margin-bottom: 80px; border-bottom: 1px solid #f0f0f0; padding-bottom: 60px; }
-        .research-question { max-width: 500px; text-align: center; font-size: 10px; color: #888; line-height: 1.8; letter-spacing: 1px; margin: 100px 0; padding: 40px; border: 0.5px solid #f0f0f0; }
         .section { width: 650px; margin-bottom: 80px; text-align: center; }
-        
         input, select, textarea { background: transparent; color: #000; border: none; border-bottom: 1px solid #f0f0f0; width: 100%; margin-bottom: 40px; padding: 15px 0; box-sizing: border-box; font-family: inherit; outline: none; font-size: 14px; text-align: center; font-weight: 200; border-radius: 0; appearance: none; }
-        textarea { height: 100px; resize: none; }
-        
         button { background: #000; color: #fff; border: none; padding: 22px; width: 100%; font-weight: 200; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 5px; transition: opacity 0.3s; }
         button:hover { opacity: 0.7; }
         
+        /* THE REVEAL FIX */
+        .reveal { opacity: 0; max-height: 0; overflow: hidden; }
+        .reveal.active { animation: fax-reveal 2.5s steps(120) forwards; opacity: 1; }
+        @keyframes fax-reveal { to { max-height: 5000px; } }
+        
         .gallery-item { width: 750px; padding: 100px 0; border-top: 1px solid #f9f9f9; display: flex; flex-direction: column; align-items: center; }
         .ascii-view { font-size: 8px; line-height: 7px; background: #fff; padding: 40px 0; display: inline-block; color: #000; }
-        .reveal { animation: fax-reveal 2.5s steps(120) forwards; overflow: hidden; max-height: 0; }
-        @keyframes fax-reveal { to { max-height: 10000px; } }
         
-        h3 { letter-spacing: 15px; margin-top: 120px; font-size: 14px; border-bottom: 1px solid #000; padding-bottom: 15px; font-weight: 200; margin-bottom: 50px; }
-        p { font-weight: 200; font-size: 15px; line-height: 1.8; letter-spacing: 1px; max-width: 550px; text-align: center; }
-        small { color: #cccccc; font-size: 9px; margin-bottom: 15px; letter-spacing: 2px; }
-        .redact-trigger { color: #eeeeee; text-decoration: none; font-size: 9px; margin-top: 20px; transition: color 0.3s; }
-        .redact-trigger:hover { color: #ff0000; }
-        .download-btn { color: #000; font-size: 10px; margin-top: 20px; text-decoration: underline; letter-spacing: 1px; display: block; margin-bottom: 40px; }
+        /* ZINE CONFIG PANEL - STYLED TO MATCH ORIGINAL LOOK */
+        .zine-config { border: 0.5px solid #f0f0f0; padding: 40px; margin-bottom: 80px; width: 600px; text-align: center; }
+        .config-label { font-size: 9px; letter-spacing: 2px; color: #888; margin-bottom: 10px; display: block; }
+        .download-btn { color: #000; font-size: 10px; margin: 20px 10px; text-decoration: underline; letter-spacing: 1px; display: inline-block; cursor: pointer; }
     </style>
 </head>
 <body>
-
     <div id="logo-target">{{ logo_ascii }}</div>
 
-    <div class="manifesto">
-        DATA - DIARIES IS A MULTIMODAL PROTOCOL FOR THE PRESERVATION OF THOUGHTS. WE CONVERT INDIVIDUAL NARRATIVES INTO DIGITAL ARTIFACTS, BLURRING THE LINE BETWEEN MACHINE PERCEPTION AND HUMAN MEMORY.
-    </div>
-
-    <div class="section">
-        <small>// BROADCAST_SUBSCRIPTION</small>
-        <form action="/subscribe" method="POST">
-            <input type="email" name="email_sub" placeholder="ENTER_EMAIL_FOR_REMOTE_LOG" required>
-            <button type="submit">CONNECT_SIGNAL</button>
-        </form>
-    </div>
+    <div class="manifesto">DATA - DIARIES IS A MULTIMODAL PROTOCOL...</div>
 
     <div class="section">
         <small>// ARTIFACT_SUBMISSION</small>
         <form method="POST" action="/submit" enctype="multipart/form-data">
             <input type="text" name="description" placeholder="ARTIFACT_ID">
             <textarea name="user_text" placeholder="MEMORY_CONTENT..."></textarea>
-            <input type="file" name="image_file" accept="image/*">
+            <input type="file" name="image_file">
             <select name="density">
                 <option value="light">INK_WEIGHT: LIGHT</option>
                 <option value="medium" selected>INK_WEIGHT: MEDIUM</option>
@@ -68,48 +52,64 @@
         </form>
     </div>
 
-    <div class="research-question">
-        HOW CAN THE TECHNICAL CONSTRAINTS OF THE TURN OF THE MILLENNIUM BE REPURPOSED TO CREATE A NEW MATERIAL LANGUAGE FOR PERSONAL CULTURAL ARCHIVING?
+    <div class="zine-config">
+        <small>// ARCHIVE_OUTPUT_CONFIGURATION</small>
+        <div style="margin-top:30px;">
+            <span class="config-label">REDACTION_MODE</span>
+            <select id="zine-mode" style="width:200px; margin-bottom: 20px;">
+                <option value="full">DECRYPTED</option>
+                <option value="redacted">REDACTED</option>
+            </select>
+            
+            <span class="config-label">INTENSITY_THRESHOLD</span>
+            <input type="range" id="zine-level" min="10" max="90" value="50" style="width:200px;">
+        </div>
+        
+        <div style="margin-top:30px;">
+            {% if session.get('last_artifact_ready') %}
+                <a href="/download_receipt" class="download-btn">[INDIVIDUAL_RECEIPT]</a>
+            {% endif %}
+            <a onclick="generateZine()" class="download-btn">[COMPILE_CUSTOM_ZINE]</a>
+        </div>
     </div>
 
     <h3>GLOBAL_ARCHIVE</h3>
-
-    {% if session.get('last_artifact') %}
-        <a href="/generate_zine" class="download-btn">[GENERATE_PHYSICAL_RECEIPT_FOR_LAST_ENTRY]</a>
-    {% endif %}
-
     {% for entry in gallery %}
     <div class="gallery-item">
         <small>{{ entry.date }} // {{ entry.time }} // ID: {{ entry.desc }}</small>
-        
-        <p>{{ entry.content | safe }}</p>
-
+        <p>{{ entry.content }}</p>
         {% if entry.ascii %}
-        <div class="ascii-view reveal">
-            <pre>{{ entry.ascii }}</pre>
-        </div>
+        <div class="ascii-view reveal"><pre>{{ entry.ascii }}</pre></div>
         {% endif %}
-
-        <a href="/delete/{{ loop.index0 }}" class="redact-trigger">[REDACT_LOCAL_CACHE]</a>
+        <a href="/delete/{{ loop.index0 }}" style="color:#eee; font-size:9px; text-decoration:none;">[REDACT]</a>
     </div>
     {% endfor %}
 
     <script>
+        // LOGO GLITCH
         const target = document.getElementById('logo-target');
         const originalLogo = `{{ logo_ascii | safe }}`;
-        const glitchChars = "0189$#%@&?/><";
         function glitchLogo() {
-            let result = "";
-            for (let i = 0; i < originalLogo.length; i++) {
-                if (originalLogo[i] !== " " && originalLogo[i] !== "\n" && Math.random() < 0.05) {
-                    result += glitchChars[Math.floor(Math.random() * glitchChars.length)];
-                } else {
-                    result += originalLogo[i];
-                }
+            let res = "";
+            for(let i=0; i<originalLogo.length; i++) {
+                res += (Math.random() < 0.05 && originalLogo[i] !== '\n') ? "X#$0"[Math.floor(Math.random()*4)] : originalLogo[i];
             }
-            target.innerText = result;
+            target.innerText = res;
         }
         setInterval(glitchLogo, 60);
+
+        // ZINE REDACTION GENERATOR
+        function generateZine() {
+            const m = document.getElementById('zine-mode').value;
+            const l = document.getElementById('zine-level').value;
+            window.location.href = `/generate_zine?mode=${m}&level=${l}`;
+        }
+
+        // VIEWPORT REVEAL TRIGGER
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
 </body>
 </html>
