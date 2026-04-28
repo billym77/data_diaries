@@ -9,37 +9,39 @@
 
         body { 
             background: var(--bg); color: var(--fg); font-family: 'Andale Mono', monospace; 
-            display: grid; grid-template-columns: 450px 1fr; /* TWO COLUMN GRID */
-            margin: 0; padding: 0; text-transform: uppercase; transition: background 0.4s; height: 100vh; overflow: hidden;
+            display: grid; grid-template-columns: 450px 1fr; /* AMENDMENT: Fixed overlap grid */
+            margin: 0; padding: 0; text-transform: uppercase; height: 100vh; overflow: hidden;
         }
 
         #left-protocol { padding: 60px; border-right: 1px solid var(--accent); height: 100vh; overflow-y: auto; box-sizing: border-box; background: var(--bg); z-index: 10; }
         #right-print { padding: 60px; height: 100vh; overflow-y: auto; box-sizing: border-box; background: var(--bg); }
 
-        .slider-section { margin-bottom: 30px; }
-        .visual-level { display: flex; height: 6px; border: 1px solid var(--fg); margin-top: 8px; }
-        .level-fill { height: 100%; background: var(--fg); }
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: crosshair; margin-top: 12px; }
-        input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--fg); }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 6px; background: var(--fg); margin-top: -8px; border-radius: 0; }
+        #logo-target { white-space: pre; font-size: 11px; line-height: 10px; margin-bottom: 40px; }
+        .manifesto { font-size: 11px; line-height: 1.6; margin-bottom: 40px; border-bottom: 1px solid var(--accent); padding-bottom: 20px; }
+        .research-question { font-size: 10px; color: #888; line-height: 1.8; margin: 40px 0; padding: 20px; border: 0.5px solid var(--accent); }
 
-        .research-question { font-size: 10px; color: #888; line-height: 1.8; margin-top: 60px; padding: 30px; border: 0.5px solid var(--accent); }
-        
-        .control-row { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        /* UPGRADED SLIDERS & TOGGLES */
+        .slider-section { margin-bottom: 25px; }
+        .visual-level { display: flex; height: 6px; border: 1px solid var(--fg); margin-top: 5px; }
+        .level-fill { height: 100%; background: var(--fg); }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin-top: 10px; cursor: crosshair; }
+        input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--fg); }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 4px; background: var(--fg); margin-top: -7px; }
+
+        .control-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
         .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
-        .switch input { opacity: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--accent); transition: .4s; }
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: var(--fg); transition: .4s; }
         input:checked + .slider { background-color: var(--fg); }
         input:checked + .slider:before { transform: translateX(18px); background-color: var(--bg); }
 
-        .reveal { animation: fax-reveal 6s steps(80) forwards; overflow: hidden; max-height: 0; border-left: 1px solid var(--fg); padding-left: 30px; margin-top: 30px; }
-        @keyframes fax-reveal { from { max-height: 0; } to { max-height: 6000px; } }
+        .reveal { animation: fax-reveal 6s steps(80) forwards; overflow: hidden; max-height: 0; border-left: 1px solid var(--fg); padding-left: 20px; }
+        @keyframes fax-reveal { from { max-height: 0; } to { max-height: 3000px; } }
 
-        #logo-target { white-space: pre; font-size: 11px; line-height: 10px; margin-bottom: 50px; }
-        input, textarea { background: transparent; color: var(--fg); border: none; border-bottom: 1px solid var(--accent); width: 100%; margin-bottom: 30px; padding: 15px 0; font-family: inherit; outline: none; }
-        button { background: var(--fg); color: var(--bg); border: none; padding: 20px; width: 100%; cursor: pointer; letter-spacing: 5px; }
-        .protocol-link { font-size: 10px; text-decoration: underline; cursor: pointer; display: block; margin-top: 20px; }
+        input, textarea { background: transparent; color: var(--fg); border: none; border-bottom: 1px solid var(--accent); width: 100%; margin-bottom: 20px; padding: 10px 0; font-family: inherit; outline: none; }
+        button { background: var(--fg); color: var(--bg); border: none; padding: 15px; width: 100%; cursor: pointer; letter-spacing: 2px; }
+        .protocol-link { font-size: 10px; text-decoration: underline; cursor: pointer; display: block; margin-top: 15px; }
     </style>
 </head>
 <body id="main-body">
@@ -49,32 +51,34 @@
         <label class="switch"><input type="checkbox" id="invert-toggle" onclick="toggleInvert()"><span class="slider"></span></label>
         <small>INVERSION_PROTOCOL</small>
     </div>
-    
+
     <div id="logo-target">{{ logo_ascii }}</div>
+    
+    <div class="manifesto">
+        DATA - DIARIES IS A MULTIMODAL PROTOCOL FOR THE PRESERVATION OF THOUGHTS. WE CONVERT INDIVIDUAL NARRATIVES INTO DIGITAL ARTIFACTS.
+    </div>
 
     <form method="POST" action="/submit" enctype="multipart/form-data">
         <input type="text" name="description" placeholder="ARTIFACT_ID">
         <textarea name="user_text" placeholder="MEMORY_CONTENT..."></textarea>
-        
         <small>// ATTACH_VISUAL_DATA</small>
-        <input type="file" name="image_file" style="margin-bottom:30px;">
-
+        <input type="file" name="image_file" style="margin-bottom: 20px;">
+        
         <div class="slider-section">
             <small>INK_DENSITY: <span id="ink-val">50</span>%</small>
             <div class="visual-level"><div id="ink-fill" class="level-fill" style="width: 50%;"></div></div>
             <input type="range" name="density_slider" min="0" max="100" value="50" oninput="updateInk(this.value)">
         </div>
-
         <button type="submit">COMMIT_TO_MEMORY</button>
     </form>
-    
+
     <div class="research-question">
         HOW CAN THE TECHNICAL CONSTRAINTS OF THE TURN OF THE MILLENNIUM BE REPURPOSED TO CREATE A NEW MATERIAL LANGUAGE FOR PERSONAL CULTURAL ARCHIVING?
     </div>
 
-    <div style="margin-top: 60px; border-top: 2px solid var(--fg); padding-top: 40px;">
+    <div style="margin-top: 40px; border-top: 2px solid var(--fg); padding-top: 20px;">
         <small>// ARCHIVE_CONFIGURATION</small>
-        <div class="control-row" style="margin-top:20px;">
+        <div class="control-row" style="margin-top:15px;">
             <label class="switch"><input type="checkbox" id="redact-toggle" checked><span class="slider"></span></label>
             <small>REDACTION_ACTIVE</small>
         </div>
@@ -86,39 +90,46 @@
         <a onclick="downloadReceipt()" class="protocol-link">[GENERATE_INDIVIDUAL_RECEIPT]</a>
         <a onclick="generateZine()" class="protocol-link">[COMPILE_FULL_ARCHIVE_ZINE]</a>
     </div>
+
+    <form method="POST" action="/" style="margin-top: 40px;">
+        <input type="email" name="email_sub" placeholder="SUBSCRIBE_TO_PROTOCOL_UPDATES">
+        <button type="submit" style="font-size: 10px; padding: 10px;">JOIN_MAILING_LIST</button>
+    </form>
 </div>
 
 <div id="right-print">
-    <small style="display: block; margin-bottom: 40px; color: #888;">// ARCHIVAL_FEED_STREAM</small>
+    <small style="display: block; margin-bottom: 30px; color: #888;">// ARCHIVAL_FEED_STREAM</small>
     {% for entry in gallery %}
-    <div class="gallery-item" style="margin-bottom: 120px; border-bottom: 1px solid var(--accent); padding-bottom: 60px;">
+    <div class="gallery-item" style="margin-bottom: 80px; border-bottom: 1px solid var(--accent); padding-bottom: 40px;">
         <small>{{ entry.date }} // {{ entry.time }} // ID: {{ entry.desc }}</small>
-        <p style="font-size: 14px; line-height: 1.6; margin: 30px 0; max-width: 600px;">{{ entry.content }}</p>
-        {% if entry.ascii %}<div class="ascii-view reveal" style="font-size: 7px; line-height: 6px; white-space: pre;">{{ entry.ascii }}</div>{% endif %}
+        <p style="font-size: 14px; line-height: 1.6; margin: 20px 0; max-width: 600px;">{{ entry.content }}</p>
+        {% if entry.ascii %}<div class="ascii-view reveal" style="font-size: 7px; white-space: pre;">{{ entry.ascii }}</div>{% endif %}
+        <a href="/delete/{{ loop.index0 }}" class="protocol-link" style="color:red; text-decoration:none;">[REDACT]</a>
     </div>
     {% endfor %}
 </div>
 
 <script>
+    // RESTORED GLITCH
+    const target = document.getElementById('logo-target');
+    const originalLogo = `{{ logo_ascii | safe }}`;
+    function glitchLogo() {
+        let res = "";
+        for(let i=0; i<originalLogo.length; i++) {
+            res += (Math.random() < 0.04 && originalLogo[i] !== '\n') ? "!@#$%"[Math.floor(Math.random()*5)] : originalLogo[i];
+        }
+        target.innerText = res;
+    }
+    setInterval(glitchLogo, 80);
+
+    // PERSISTENCE & SLIDERS
     const body = document.getElementById('main-body');
     const toggle = document.getElementById('invert-toggle');
     if (localStorage.getItem('inverted') === 'true') { body.classList.add('inverted'); toggle.checked = true; }
-
-    function toggleInvert() {
-        const inv = body.classList.toggle('inverted');
-        localStorage.setItem('inverted', inv);
-    }
-
-    function updateInk(v) {
-        document.getElementById('ink-val').innerText = v;
-        document.getElementById('ink-fill').style.width = v + "%";
-    }
-
-    function updateRedact(v) {
-        document.getElementById('redact-val').innerText = v;
-        document.getElementById('redact-fill').style.width = v + "%";
-    }
-
+    function toggleInvert() { const inv = body.classList.toggle('inverted'); localStorage.setItem('inverted', inv); }
+    function updateInk(v) { document.getElementById('ink-val').innerText = v; document.getElementById('ink-fill').style.width = v + "%"; }
+    function updateRedact(v) { document.getElementById('redact-val').innerText = v; document.getElementById('redact-fill').style.width = v + "%"; }
+    
     function downloadReceipt() { window.location.href = `/download_receipt?invert=${toggle.checked}`; }
     function generateZine() {
         const lvl = document.getElementById('zine-level').value;
