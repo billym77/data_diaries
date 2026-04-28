@@ -36,7 +36,7 @@ def image_to_ascii(image_file, width=80, density_value=50):
         new_height = int(aspect_ratio * width * 0.5) 
         img = img.resize((width, new_height))
         
-        # MASTER SLIDER LOGIC: Thresholds for Ink Density
+        # MASTER SLIDER LOGIC
         if density_value < 33:
             chars = " .:-' "
         elif density_value < 66:
@@ -50,7 +50,7 @@ def image_to_ascii(image_file, width=80, density_value=50):
     except: return ""
 
 def create_receipt_image(entry, inverted=False):
-    # MASTER FIX: 1000px width prevents character distortion
+    # MASTER FIX: 1000px width prevents the 'squashed' look
     WIDTH = 1000 
     ASCII_CHAR_H = 10
     bg = (0, 0, 0) if inverted else (255, 255, 255)
@@ -83,7 +83,7 @@ def index():
 def submit():
     txt = request.form.get('user_text', '')
     desc = request.form.get('description', 'SIGNAL_LOG')
-    # MASTER SLIDER RECEIPT
+    # FIX: Correctly parsing numeric slider value from frontend
     density = int(request.form.get('density_slider', 50))
     img_file = request.files.get('image_file')
     
@@ -117,7 +117,6 @@ def generate_zine():
         cv.setFillColor(bg_c)
         cv.rect(0, 0, 148*mm, 210*mm, fill=1)
         cv.setFillColor(fg_c)
-        # MASTER TYPOGRAPHY: No bold, clean Courier
         cv.setFont('Courier', 10) 
         cv.drawString(15*mm, 190*mm, f"ID: {entry['desc']}")
         y = 175*mm

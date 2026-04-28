@@ -4,35 +4,18 @@
     <meta charset="UTF-8">
     <title>DATA DIARY // PROTOCOL</title>
     <style>
-        :root { --bg: #ffffff; --fg: #000000; --accent: #f0f0f0; }
-        body.inverted { --bg: #000000; --fg: #ffffff; --accent: #222222; }
+        :root { --bg: #ffffff; --fg: #000; --accent: #f0f0f0; }
+        body.inverted { --bg: #000; --fg: #fff; --accent: #222; }
 
         body { 
-            background: var(--bg); color: var(--fg); 
-            font-family: 'Andale Mono', monospace; 
-            display: grid; 
-            grid-template-columns: 450px 1fr; /* HARD BOUNDARY: Protocol vs Feed */
-            margin: 0; padding: 0;
-            text-transform: uppercase; font-weight: 200;
-            transition: background 0.4s; height: 100vh; overflow: hidden;
+            background: var(--bg); color: var(--fg); font-family: 'Andale Mono', monospace; 
+            display: grid; grid-template-columns: 450px 1fr; /* HARD BOUNDARY */
+            margin: 0; padding: 0; text-transform: uppercase; transition: background 0.4s; height: 100vh; overflow: hidden;
         }
 
-        #left-protocol { 
-            padding: 60px; border-right: 1px solid var(--accent); 
-            height: 100vh; overflow-y: auto; box-sizing: border-box; 
-            background: var(--bg); z-index: 10;
-        }
+        #left-protocol { padding: 60px; border-right: 1px solid var(--accent); height: 100vh; overflow-y: auto; box-sizing: border-box; background: var(--bg); z-index: 10; }
+        #right-print { padding: 60px; height: 100vh; overflow-y: auto; box-sizing: border-box; background: var(--bg); }
 
-        #right-print { 
-            padding: 60px; height: 100vh; 
-            overflow-y: auto; box-sizing: border-box; 
-            background: var(--bg);
-        }
-
-        #logo-target { white-space: pre; font-size: 11px; line-height: 10px; margin-bottom: 50px; }
-        .manifesto { font-size: 11px; line-height: 1.8; letter-spacing: 2px; margin-bottom: 60px; border-bottom: 1px solid var(--accent); padding-bottom: 40px; }
-
-        /* BRUTALIST SLIDERS */
         .slider-section { margin-bottom: 30px; }
         .visual-level { display: flex; height: 6px; border: 1px solid var(--fg); margin-top: 8px; }
         .level-fill { height: 100%; background: var(--fg); }
@@ -40,13 +23,10 @@
         input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--fg); }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 6px; background: var(--fg); margin-top: -8px; border-radius: 0; }
 
-        /* RESEARCH TEXT AREA */
-        .research-question { font-size: 10px; color: #888; line-height: 1.8; letter-spacing: 1px; margin-top: 60px; padding: 30px; border: 0.5px solid var(--accent); }
-
-        /* TOGGLES */
+        .research-question { font-size: 10px; color: #888; line-height: 1.8; margin-top: 60px; padding: 30px; border: 0.5px solid var(--accent); }
         .control-row { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch input { opacity: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--accent); transition: .4s; }
         .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: var(--fg); transition: .4s; }
         input:checked + .slider { background-color: var(--fg); }
@@ -57,111 +37,46 @@
 
         input, textarea { background: transparent; color: var(--fg); border: none; border-bottom: 1px solid var(--accent); width: 100%; margin-bottom: 30px; padding: 15px 0; font-family: inherit; outline: none; }
         button { background: var(--fg); color: var(--bg); border: none; padding: 20px; width: 100%; cursor: pointer; letter-spacing: 5px; }
-        .protocol-link { font-size: 10px; text-decoration: underline; cursor: pointer; display: block; margin-top: 20px; letter-spacing: 1px; }
+        .protocol-link { font-size: 10px; text-decoration: underline; cursor: pointer; display: block; margin-top: 20px; }
     </style>
 </head>
 <body id="main-body">
-
 <div id="left-protocol">
     <div class="control-row">
         <label class="switch"><input type="checkbox" id="invert-toggle" onclick="toggleInvert()"><span class="slider"></span></label>
         <small>INVERSION_PROTOCOL</small>
     </div>
-    
     <div id="logo-target">{{ logo_ascii }}</div>
-
-    <div class="manifesto">
-        DATA - DIARIES IS A MULTIMODAL PROTOCOL FOR THE PRESERVATION OF THOUGHTS. WE CONVERT INDIVIDUAL NARRATIVES INTO DIGITAL ARTIFACTS.
-    </div>
-
     <form method="POST" action="/submit" enctype="multipart/form-data">
         <input type="text" name="description" placeholder="ARTIFACT_ID">
         <textarea name="user_text" placeholder="MEMORY_CONTENT..."></textarea>
-        
         <small>// ATTACH_VISUAL_DATA</small>
         <input type="file" name="image_file" style="margin-bottom:30px;">
-
         <div class="slider-section">
             <small>INK_DENSITY: <span id="ink-val">50</span>%</small>
             <div class="visual-level"><div id="ink-fill" class="level-fill" style="width: 50%;"></div></div>
             <input type="range" name="density_slider" min="0" max="100" value="50" oninput="updateInk(this.value)">
         </div>
-
         <button type="submit">COMMIT_TO_MEMORY</button>
     </form>
-    
-    <div class="research-question">
-        HOW CAN THE TECHNICAL CONSTRAINTS OF THE TURN OF THE MILLENNIUM BE REPURPOSED TO CREATE A NEW MATERIAL LANGUAGE FOR PERSONAL CULTURAL ARCHIVING?
-    </div>
-
-    <div style="margin-top: 60px; border-top: 2px solid var(--fg); padding-top: 40px;">
-        <small>// ARCHIVE_CONFIGURATION</small>
-        <div class="control-row" style="margin-top:20px;">
-            <label class="switch"><input type="checkbox" id="redact-toggle" checked><span class="slider"></span></label>
-            <small>REDACTION_ACTIVE</small>
-        </div>
-        <div class="slider-section">
-            <small>REDACTION_THRESHOLD: <span id="redact-val">50</span>%</small>
-            <div class="visual-level"><div id="redact-fill" class="level-fill" style="width: 50%;"></div></div>
-            <input type="range" id="zine-level" min="0" max="100" value="50" oninput="updateRedact(this.value)">
-        </div>
-        {% if session.get('last_artifact_ready') %}
-            <a onclick="downloadReceipt()" class="protocol-link">[GENERATE_INDIVIDUAL_RECEIPT]</a>
-        {% endif %}
-        <a onclick="generateZine()" class="protocol-link">[COMPILE_FULL_ARCHIVE_ZINE]</a>
-    </div>
+    <div class="research-question">HOW CAN THE TECHNICAL CONSTRAINTS OF THE TURN OF THE MILLENNIUM BE REPURPOSED TO CREATE A NEW MATERIAL LANGUAGE FOR PERSONAL CULTURAL ARCHIVING?</div>
 </div>
-
 <div id="right-print">
     <small style="display: block; margin-bottom: 40px; color: #888;">// ARCHIVAL_FEED_STREAM</small>
-    <div id="print-zone">
-        {% for entry in gallery %}
-        <div class="gallery-item" style="margin-bottom: 120px; border-bottom: 1px solid var(--accent); padding-bottom: 60px;">
-            <small>{{ entry.date }} // {{ entry.time }} // ID: {{ entry.desc }}</small>
-            <p style="font-size: 14px; line-height: 1.6; margin: 30px 0; max-width: 600px;">{{ entry.content }}</p>
-            {% if entry.ascii %}<div class="ascii-view reveal" style="font-size: 7px; line-height: 6px; white-space: pre;">{{ entry.ascii }}</div>{% endif %}
-        </div>
-        {% endfor %}
+    {% for entry in gallery %}
+    <div class="gallery-item" style="margin-bottom: 120px; border-bottom: 1px solid var(--accent); padding-bottom: 60px;">
+        <small>{{ entry.date }} // {{ entry.time }} // ID: {{ entry.desc }}</small>
+        <p style="font-size: 14px; line-height: 1.6; margin: 30px 0; max-width: 600px;">{{ entry.content }}</p>
+        {% if entry.ascii %}<div class="ascii-view reveal" style="font-size: 7px; line-height: 6px; white-space: pre;">{{ entry.ascii }}</div>{% endif %}
     </div>
+    {% endfor %}
 </div>
-
 <script>
     const body = document.getElementById('main-body');
     const toggle = document.getElementById('invert-toggle');
     if (localStorage.getItem('inverted') === 'true') { body.classList.add('inverted'); toggle.checked = true; }
-
-    function toggleInvert() {
-        const inv = body.classList.toggle('inverted');
-        localStorage.setItem('inverted', inv);
-    }
-
-    function updateInk(v) {
-        document.getElementById('ink-val').innerText = v;
-        document.getElementById('ink-fill').style.width = v + "%";
-    }
-
-    function updateRedact(v) {
-        document.getElementById('redact-val').innerText = v;
-        document.getElementById('redact-fill').style.width = v + "%";
-    }
-
-    const target = document.getElementById('logo-target');
-    const originalLogo = `{{ logo_ascii | safe }}`;
-    function glitchLogo() {
-        let res = "";
-        for(let i=0; i<originalLogo.length; i++) {
-            res += (Math.random() < 0.05 && originalLogo[i] !== '\n') ? "X#$01"[Math.floor(Math.random()*5)] : originalLogo[i];
-        }
-        target.innerText = res;
-    }
-    setInterval(glitchLogo, 60);
-
-    function downloadReceipt() { window.location.href = `/download_receipt?invert=${toggle.checked}`; }
-    function generateZine() {
-        const lvl = document.getElementById('zine-level').value;
-        const mode = document.getElementById('redact-toggle').checked ? 'redacted' : 'full';
-        window.location.href = `/generate_zine?invert=${toggle.checked}&level=${lvl}&mode=${mode}`;
-    }
+    function toggleInvert() { const inv = body.classList.toggle('inverted'); localStorage.setItem('inverted', inv); }
+    function updateInk(v) { document.getElementById('ink-val').innerText = v; document.getElementById('ink-fill').style.width = v + "%"; }
 </script>
 </body>
 </html>
