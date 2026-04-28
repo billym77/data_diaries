@@ -15,9 +15,8 @@ from reportlab.lib import colors as rl_colors
 from reportlab.lib.units import mm
 
 app = Flask(__name__)
-app.secret_key = 'andale_archive_v11_split_master'
+app.secret_key = 'andale_archive_v12_stable_master'
 
-# Global Storage
 gallery_archive = []
 
 LOGO_ASCII = r"""
@@ -30,41 +29,45 @@ LOGO_ASCII = r"""
 ######   ##    ##    ##    ##    ##          ########  ####  ##    ## ##     ## ####  ########  ######
 """
 
-def image_to_ascii(image_file, width=100, density_level="medium"):
+def image_to_ascii(image_file, width=80, density_level="medium"):
     try:
         img = Image.open(image_file).convert('L')
         aspect_ratio = img.height / img.width
-        new_height = int(aspect_ratio * width * 0.55)
+        # Adjusted for better scaling on receipts
+        new_height = int(aspect_ratio * width * 0.5) 
         img = img.resize((width, new_height))
-        if density_level == "light":
-            chars = " .:-' "
-        elif density_level == "heavy":
-            chars = r"█▓▒░@#W$8&%*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
-        else:
-            chars = r"WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+        
+        chars = r"WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+        if density_level == "light": chars = " .:-' "
+        elif density_level == "heavy": chars = r"█▓▒░@#W$8&%*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+            
         pixels = img.getdata()
         ascii_str = "".join(chars[int((p / 255) * (len(chars) - 1))] for p in pixels)
         return "\n".join(ascii_str[i:i+width] for i in range(0, len(ascii_str), width))
-    except:
-        return ""
+    except: return ""
 
 def create_receipt_image(entry, inverted=False):
-    WIDTH = 800
-    ASCII_CHAR_H = 8
+    # FIXED: Wider canvas and better line height to prevent distortion
+    WIDTH = 1000 
+    ASCII_CHAR_H = 10
     bg = (0, 0, 0) if inverted else (255, 255, 255)
     fg = (255, 255, 255) if inverted else (0, 0, 0)
     
     ascii_lines = entry['ascii'].split('\n') if entry['ascii'] else []
-    total_h = 600 + (len(ascii_lines) * ASCII_CHAR_H)
+    total_h = 700 + (len(ascii_lines) * ASCII_CHAR_H)
     img = Image.new('RGB', (WIDTH, total_h), color=bg)
     d = ImageDraw.Draw(img)
-    y = 60
+    y = 80
+    
+    # Logo and Content
     for line in LOGO_ASCII.strip().split('\n'):
-        d.text((40, y), line, fill=fg); y += ASCII_CHAR_H
+        d.text((60, y), line, fill=fg); y += ASCII_CHAR_H
     y += 60
+    
     if entry['ascii']:
         for line in ascii_lines:
-            d.text((40, y), line, fill=fg); y += ASCII_CHAR_H
+            # Added slight x-offset to center art better
+            d.text((60, y), line, fill=fg); y += ASCII_CHAR_H
     
     buf = io.BytesIO()
     img.save(buf, 'PNG')
@@ -81,15 +84,9 @@ def submit():
     desc = request.form.get('description', 'SIGNAL_LOG')
     density = request.form.get('density', 'medium')
     img_file = request.files.get('image_file')
-    
     ascii_art = image_to_ascii(img_file, density_level=density) if img_file else ""
     
-    entry = {
-        "content": txt, "desc": desc.upper(), 
-        "time": datetime.datetime.now().strftime("%H:%M:%S"), 
-        "date": datetime.datetime.now().strftime("%Y-%m-%d"), 
-        "ascii": ascii_art
-    }
+    entry = {"content": txt, "desc": desc.upper(), "time": datetime.datetime.now().strftime("%H:%M:%S"), "date": datetime.datetime.now().strftime("%Y-%m-%d"), "ascii": ascii_art}
     gallery_archive.insert(0, entry)
     session['last_artifact_ready'] = True
     return redirect(url_for('index'))
@@ -117,9 +114,10 @@ def generate_zine():
         cv.setFillColor(bg_c)
         cv.rect(0, 0, 148*mm, 210*mm, fill=1)
         cv.setFillColor(fg_c)
-        cv.setFont('Courier-Bold', 10)
+        # FIXED: Removed bold Courier to match receipt aesthetic
+        cv.setFont('Courier', 10) 
         cv.drawString(15*mm, 190*mm, f"ID: {entry['desc']}")
-        y = 170*mm
+        y = 175*mm
         for line in textwrap.wrap(entry['content'].upper(), width=35):
             if mode == 'redacted' and random.random() < level:
                 cv.rect(15*mm, y-2, cv.stringWidth(line, 'Courier', 10), 10, fill=1)
@@ -128,7 +126,7 @@ def generate_zine():
             y -= 15
         cv.showPage()
     cv.save(); buf.seek(0)
-    return send_file(buf, mimetype='application/pdf', as_attachment=True, download_name="ZINE.pdf")
+    return send_file(buf, mimetype='application/pdf', as_attachment=True, download_name="DATA_ZINE.pdf")
 
 @app.route('/delete/<int:idx>')
 def delete(idx):
